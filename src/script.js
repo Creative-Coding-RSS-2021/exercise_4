@@ -1,7 +1,7 @@
 const canvas = document.getElementById('exercise_4')
 const ctx = canvas.getContext('2d')
-canvas.width = 400
-canvas.height = 400
+canvas.width = Math.min(window.innerWidth, window.innerHeight)
+canvas.height = Math.min(window.innerWidth, window.innerHeight)
 
 
 const sceneSize = [canvas.width, canvas.height]
@@ -17,7 +17,7 @@ const border = (ctx) => {
     ctx.fillStyle = '#ccc'
     ctx.fillRect(0, 0, ...sceneSize)
     ctx.beginPath()
-    ctx.arc(...sceneCenter, 150, 0, Math.PI * 2)
+    ctx.arc(...sceneCenter, Math.min(...sceneCenter) - 50, 0, Math.PI * 2)
     ctx.fillStyle = '#222'
     ctx.fill()
 }
@@ -51,7 +51,7 @@ class Point {
         this.y = this.startY
         this.angle = Math.PI * 2 * Math.random()
         this.color = `rgb(${255 * Math.random()}, ${255 * Math.random()}, ${255 * Math.random()})`
-        this.speed = Math.random() * 2
+        this.speed = Math.random() * 5
     }
 
 
@@ -68,7 +68,7 @@ class Point {
 
         const radius = 10 * .1  + Math.abs((this.startX - this.x) * .2)
         ctx.beginPath()
-        ctx.arc(this.x, this.y, 10, 0, Math.PI * 2)
+        ctx.arc(this.x, this.y, radius, 0, Math.PI * 2)
         ctx.fillStyle = this.color
         ctx.fill()
     }
@@ -81,9 +81,9 @@ class Point {
 
         const index = width * Math.floor(this.y) * 4 +  Math.floor(this.x) * 4
         const point = data[index]
-       // console.log('point', point)
+        //console.log('point', point)
 
-       return point !== 204
+        return point !== 204
 
 
     }
@@ -94,6 +94,6 @@ class Point {
 
 }
 
-const points = [...Array(5).keys()].map(i => new Point(...sceneCenter, i))
+const points = [...Array(15).keys()].map(i => new Point(...sceneCenter, i))
 
 requestAnimationFrame(draw)
