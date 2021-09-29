@@ -1,4 +1,4 @@
-# Exercise 4. Points Animation :pencil:
+# Exercise 4. Particle Animation :pencil:
 
 **Exercise Goal**: Move things with javascript `class` 
 
