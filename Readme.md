@@ -3,5 +3,5 @@
 **Exercise Goal**: Move things with javascript `class` 
 
 ## Experiment 1. 
-change `rgb` color schema throught `hsl`
+change `rgb` color schema to `hsl`
 
