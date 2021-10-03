@@ -14,6 +14,21 @@ canvasDraft.width = sceneSize[0]
 canvasDraft.height = sceneSize[1]
 const ctxDraft = canvasDraft.getContext('2d')
 
+const MouseCoord = {
+    offsetX: null,
+    offsetY: null,
+    set: function({ offsetX, offsetY }) {
+        this.offsetX = offsetX
+        this.offsetY = offsetY
+    }
+}
+
+canvas.addEventListener('mousemove', (event) => {
+
+    MouseCoord.set(event)
+
+})
+
 const border = (ctx) => {
 
     ctx.fillStyle = '#ccc'
@@ -49,8 +64,12 @@ class Point {
     }
 
     init() {
-        this.x = this.startX
-        this.y = this.startY
+        //this.x = this.startX
+        //this.y = this.startY
+
+        this.x = MouseCoord.offsetX
+        this.y = MouseCoord.offsetY
+
         this.angle = Math.PI * 2 * Math.random()
         this.shape = Math.floor(Math.random() * 3)
 
@@ -61,11 +80,11 @@ class Point {
         //ctx.fillStyle = `hsl(${ this.color[0] }, ${ this.color[1] }%, ${ this.color[2] }%)`
 
 
-        this.color = [360 * Math.random(), 100, 50, 1]
+        this.color = [360 * Math.random(), 50 * Math.random() + 50, 50 * Math.random() + 50, 1]
         ctx.fillStyle = `hsl(${ this.color[0] }, ${ this.color[1] }%, ${ this.color[2] }%)`
 
 
-        this.speed = Math.random() * 4 + .5
+        this.speed = Math.random() * 3 + .2
     }
 
 
@@ -121,6 +140,7 @@ class Point {
 
     withinBorder() {
 
+        /*
         const width = sceneSize[0]
         const data = ctxDraft.getImageData(0, 0, ...sceneSize).data
 
@@ -129,6 +149,9 @@ class Point {
             //console.log('point', point)
 
         return point !== 204
+        */
+
+        return !(this.x < 0 || this.y < 0 || this.x > canvas.width || this.y > canvas.height)
 
 
     }
@@ -136,6 +159,6 @@ class Point {
 }
 
 
-const points = [...Array(15).keys()].map(i => new Point(...sceneCenter, i))
+const points = [...Array(100).keys()].map(i => new Point(MouseCoord.offsetX, MouseCoord.offsetY, i))
 
 requestAnimationFrame(draw)
