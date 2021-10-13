@@ -4,4 +4,3 @@
 
 ## Experiment 1. 
 change `rgb` color schema to `hsl`
-
