@@ -1,99 +1,149 @@
 const canvas = document.getElementById('exercise_4')
 const ctx = canvas.getContext('2d')
-canvas.width = Math.min(window.innerWidth, window.innerHeight)
-canvas.height = Math.min(window.innerWidth, window.innerHeight)
 
+canvas.width = 400
+canvas.height = 400
 
-const sceneSize = [canvas.width, canvas.height]
-const sceneCenter =  sceneSize.map(p => p * .5)
+const sceneSizes = [0, 0, canvas.width, canvas.height]
+const sceneCenter = sceneSizes.slice(2).map(s => Math.floor(s * .5))
 
 const canvasDraft = document.createElement('canvas')
-canvasDraft.width = sceneSize[0]
-canvasDraft.height = sceneSize[1]
 const ctxDraft = canvasDraft.getContext('2d')
 
-const border = (ctx) => {
+canvasDraft.width = sceneSizes[2]
+canvasDraft.height = sceneSizes[3]
 
-    ctx.fillStyle = '#ccc'
-    ctx.fillRect(0, 0, ...sceneSize)
+
+
+
+const transaction = (x, y, func) => {
+    ctx.save()
+    ctx.translate(x, y)
+    func()
+    ctx.restore()
+} 
+
+const border = (ctx, stroke) => {
+
+    ctx.fillStyle = "#ccc";
+    ctx.fillRect(...sceneSizes);
     ctx.beginPath()
-    ctx.arc(...sceneCenter, Math.min(...sceneCenter) - 50, 0, Math.PI * 2)
+    ctx.arc(...sceneCenter, 150, 0, Math.PI * 2)
     ctx.fillStyle = '#222'
-    ctx.fill()
-}
+    if(stroke){
+        ctx.stroke()
+    }else {
+        ctx.fill()
+    }
+    
 
+}
 
 border(ctxDraft)
+//border(ctx)
+
 
 const draw = (time) => {
-
+    
+    //if(time > 5000) return
+    
     requestAnimationFrame(draw)
 
-    ctx.clearRect(0, 0, ...sceneSize)
-
-    //border(ctx)
-
-    points.forEach(p => p.move())
+    ctx.clearRect(...sceneSizes)
+    //border(ctx, true)
     
+    points.forEach(p => p.move(points))
+
+    
+
+
 }
+
+requestAnimationFrame(draw)
+
 
 
 class Point {
 
-    constructor (x, y, i) {
-        this.startX = x
-        this.startY = y
-        this.init()
+    constructor (x, y, index) {
+
+        const angel = index/pointsNum * Math.PI * 2
+        this.init(x, y, angel)
+        
     }
 
-    init () {
-        this.x = this.startX
-        this.y = this.startY
-        this.angle = Math.PI * 2 * Math.random()
+    init (x, y, angle) {
+        const [dx, dy] = sceneCenter
+
+        this.x = dx + x 
+        this.y = dy + y
+        this.angel = angle //Math.PI * 2 * Math.random()
+        this.speed = Math.random() + 1 
+        this.arcRadius = 5
         this.color = `rgb(${255 * Math.random()}, ${255 * Math.random()}, ${255 * Math.random()})`
-        this.speed = Math.random() * 5
+        this.heu = 360*Math.random();
+    } 
+
+    hsl (lightness) {
+        return  `hsl(${this.heu},100%,${lightness}%)`;
     }
 
+    move (allPoints) {
+       // ctx.save()
+       // ctx.translate(...sceneCenter)
+        //ctx.rotate(this.angel)
+        
+        this.angel = this.angel - .01
+        this.x = (this.x + Math.sin(this.angel) )
+        this.y = (this.y + Math.cos(this.angel) )
 
+        
+        let flag = false
 
+        allPoints.forEach(p => {
+            if(!flag && !p.isInDraft()){
+                flag = true
+            }
+        })
 
-    move () {
-        this.x = this.x + Math.sin(this.angle) * this.speed
-        this.y = this.y + Math.cos(this.angle) * this.speed
-
-
-        if(!this.withinBorder()){
-            this.init()
+        if(flag) {
+            
+            this.init(0, 0, this.angel)
+            
         }
-
-        const radius = 10 * .1  + Math.abs((this.startX - this.x) * .2)
+                
         ctx.beginPath()
-        ctx.arc(this.x, this.y, radius, 0, Math.PI * 2)
+        ctx.arc(this.x, this.y, this.arcRadius * 2, 0, Math.PI * 2)
         ctx.fillStyle = this.color
         ctx.fill()
+     //   ctx.restore()
     }
 
-
-    withinBorder () {
-
-        const width = sceneSize[0]
-        const data = ctxDraft.getImageData(0, 0, ...sceneSize).data
-
-        const index = width * Math.floor(this.y) * 4 +  Math.floor(this.x) * 4
-        const point = data[index]
-        //console.log('point', point)
-
-        return point !== 204
+    isInDraft () {
+        
+        const width = sceneSizes[2]
+        
+        const [dx, dy] = sceneCenter
+    //    ctxDraft.save()
+    //    ctxDraft.rotate(this.angel)
+       
+        const data = ctxDraft.getImageData(...sceneSizes).data
+       
+        const index = Math.floor(width * Math.floor(this.y) * 4 + (Math.floor(this.x)  * 4))
+        const pointInDraft = data[index]  
+        
+        
+        //console.log('pointInDraft', pointInDraft, this.x, this.y)
+        return pointInDraft !== 204
+        
 
 
     }
-
-
-
-
 
 }
 
-const points = [...Array(15).keys()].map(i => new Point(...sceneCenter, i))
 
-requestAnimationFrame(draw)
+const pointsNum = 5
+
+const points = [...Array(pointsNum).keys()].map((i) => new Point(0, 0, i))
+
